@@ -17,6 +17,7 @@ class PreviewScreen extends StatefulWidget {
 
 class _PreviewScreenState extends State<PreviewScreen> {
   final ShareService _share = ShareService();
+  final GlobalKey _shareButtonKey = GlobalKey();
   VideoPlayerController? _controller;
   String? _localPath;
   String? _status;
@@ -59,7 +60,11 @@ class _PreviewScreenState extends State<PreviewScreen> {
         _toast('This reel URL is a placeholder — run against a live API to share.');
         return;
       }
-      await _share.shareVideo(path, text: 'Made with Cinemory');
+      await _share.shareVideo(
+        path,
+        text: 'Made with Cinemory',
+        origin: _shareOrigin(),
+      );
     } catch (e) {
       _toast('Share failed: $e');
     } finally {
@@ -82,6 +87,17 @@ class _PreviewScreenState extends State<PreviewScreen> {
     } finally {
       if (mounted) setState(() => _working = false);
     }
+  }
+
+  /// The share button's screen rect — required by iOS/iPad to anchor the share
+  /// popover (a null origin can crash the sheet on iPad).
+  Rect? _shareOrigin() {
+    final RenderObject? box =
+        _shareButtonKey.currentContext?.findRenderObject();
+    if (box is RenderBox && box.hasSize) {
+      return box.localToGlobal(Offset.zero) & box.size;
+    }
+    return null;
   }
 
   void _toast(String message) {
@@ -131,6 +147,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
                   children: <Widget>[
                     Expanded(
                       child: FilledButton.icon(
+                        key: _shareButtonKey,
                         onPressed: _working ? null : () => _onShare(reel),
                         icon: const Icon(Icons.ios_share),
                         label: const Text('Share'),
