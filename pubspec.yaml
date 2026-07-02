@@ -32,7 +32,7 @@ dependencies:
   share_plus: ^10.1.0
 
   # Save the finished reel back to the device gallery.
-  gal: ^2.3.6
+  gal: ^2.1.0
 
   # Temp files for share/save + video preview.
   path_provider: ^2.1.4
