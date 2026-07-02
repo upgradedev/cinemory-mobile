@@ -26,10 +26,9 @@ dependencies:
   photo_manager: ^3.9.0
 
   # Native OS share sheet -> Instagram / Facebook / LinkedIn / YouTube.
-  # Pinned to the well-established 10.x line (stable Share.shareXFiles API,
-  # lower Flutter floor). Bump to 13.x + SharePlus.instance once the CI
-  # Flutter channel is comfortably past 3.38 — see README.
-  share_plus: ^10.1.0
+  # 13.x uses the SharePlus.instance / ShareParams API (matches the pinned CI
+  # Flutter 3.44).
+  share_plus: ^13.0.0
 
   # Save the finished reel back to the device gallery.
   gal: ^2.1.0

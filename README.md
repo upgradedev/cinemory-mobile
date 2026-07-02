@@ -152,12 +152,14 @@ Tests never touch platform channels: the photo library is faked
 Android builds on Linux; **iOS builds on macOS** because Flutter iOS compilation
 requires Xcode. The iOS job is unsigned — signing/upload is account-gated (above).
 
-## Notes on plugin versions
+## Notes on the toolchain
 
-`share_plus` is pinned to the well-established `^10.x` line (stable
-`Share.shareXFiles`, lower Flutter floor) to keep the build robust on the pinned
-CI Flutter (`3.24.5`). It can be bumped to `13.x` + the `SharePlus.instance` API
-once the toolchain is comfortably past Flutter 3.38.
+CI pins **Flutter `3.44.4`** (latest stable) for reproducibility. The plugin set
+(`photo_manager`, `share_plus` 13.x with the `SharePlus.instance` API,
+`video_player`, `gal`, `path_provider`) is aligned to that toolchain — the newest
+plugin Android build files require the matching Flutter Gradle tooling, so an
+older pinned Flutter (e.g. 3.24) fails the Android build with
+`unknown property 'flutter'`. Bump both together.
 
 ## License
 

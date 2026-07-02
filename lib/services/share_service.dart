@@ -36,11 +36,12 @@ class ShareService {
   /// [origin] is required on iPad to anchor the share popover (pass the sharing
   /// button's global rect) and is ignored elsewhere.
   Future<void> shareVideo(String path, {String? text, Rect? origin}) async {
-    await Share.shareXFiles(
-      <XFile>[XFile(path)],
+    final ShareParams params = ShareParams(
       text: text ?? 'Made with Cinemory',
+      files: <XFile>[XFile(path)],
       sharePositionOrigin: origin,
     );
+    await SharePlus.instance.share(params);
   }
 
   /// Save a local video [path] into the device photo gallery.
