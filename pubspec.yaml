@@ -1,0 +1,47 @@
+name: cinemory_mobile
+description: >
+  Cinemory — native iOS + Android app. On-device photo access (PhotoKit /
+  MediaStore) → occasion template → generate a cinematic reel via the Cinemory
+  API → native share + save to device. One Flutter codebase for both platforms.
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # State
+  provider: ^6.1.2
+
+  # Networking to the Cinemory API
+  http: ^1.2.2
+
+  # On-device photo library: PhotoKit (iOS/iCloud) + MediaStore (Android).
+  # This is the "Apple Photos" path that has no web API — on-device, with
+  # explicit user permission.
+  photo_manager: ^3.9.0
+
+  # Native OS share sheet -> Instagram / Facebook / LinkedIn / YouTube.
+  # Pinned to the well-established 10.x line (stable Share.shareXFiles API,
+  # lower Flutter floor). Bump to 13.x + SharePlus.instance once the CI
+  # Flutter channel is comfortably past 3.38 — see README.
+  share_plus: ^10.1.0
+
+  # Save the finished reel back to the device gallery.
+  gal: ^2.3.6
+
+  # Temp files for share/save + video preview.
+  path_provider: ^2.1.4
+  video_player: ^2.9.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

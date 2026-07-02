@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: "3.24.5"
+
+jobs:
+  # ── 1. Secret scan first (fail fast) ──────────────────────────────────────
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks
+        run: |
+          VERSION=8.18.4
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz" \
+            | tar -xz gitleaks
+          ./gitleaks detect --source . --redact --no-banner --verbose
+
+  # ── 2. Lint + tests (no native build needed) ──────────────────────────────
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Analyze (lint)
+        run: flutter analyze
+      - name: Widget + unit tests
+        run: flutter test --coverage
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage
+          path: coverage/lcov.info
+          if-no-files-found: ignore
+
+  # ── 3. Android build (Linux) ──────────────────────────────────────────────
+  build-android:
+    runs-on: ubuntu-latest
+    needs: [secret-scan, analyze-and-test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Bootstrap platform folders + permissions
+        run: bash tool/bootstrap.sh
+      - name: Build debug APK
+        run: flutter build apk --debug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: warn
+
+  # ── 4. iOS build — REQUIRES macOS/Xcode; the founder is on Windows ─────────
+  # Unsigned build: proves the iOS target compiles. Signing + store upload need
+  # an Apple Developer account (see docs/STORE_SUBMISSION.md) and are user steps.
+  build-ios:
+    runs-on: macos-latest
+    needs: [secret-scan, analyze-and-test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Bootstrap platform folders + permissions
+        run: bash tool/bootstrap.sh
+      - name: Build iOS (no code signing)
+        run: flutter build ios --no-codesign --debug

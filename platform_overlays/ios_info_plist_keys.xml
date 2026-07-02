@@ -1,0 +1,6 @@
+<!-- Reference copy of the keys injected into ios/Runner/Info.plist by
+     tool/apply_platform_overlays.py. Place these inside the root <dict>. -->
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Cinemory needs access to your photos so you can pick the moments for your reel. Photos stay on your device unless you choose to share a finished reel.</string>
+<key>NSPhotoLibraryAddUsageDescription</key>
+<string>Cinemory saves your finished reel to your photo library.</string>
